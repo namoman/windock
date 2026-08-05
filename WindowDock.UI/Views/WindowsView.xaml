@@ -16,11 +16,11 @@
                     <DataTemplate>
                         <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,0,8" Padding="12">
                             <DockPanel>
-                                <Button DockPanel.Dock="Right"
-                                        Command="{Binding DataContext.ToggleActiveWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Style="{StaticResource ToggleSwitchStyle}"
-                                        ToolTip="작업표시줄에서 숨기기" />
+                                <ToggleButton DockPanel.Dock="Right"
+                                              Command="{Binding DataContext.ToggleActiveWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              CommandParameter="{Binding}"
+                                              Style="{StaticResource ToggleSwitchStyle}"
+                                              ToolTip="작업표시줄에서 숨기기" />
                                 <Image Source="{Binding Icon}" Width="32" Height="32" Margin="0,0,12,0" DockPanel.Dock="Left" />
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" TextTrimming="CharacterEllipsis" />

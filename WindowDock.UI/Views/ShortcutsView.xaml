@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <TextBlock Text="단축키 설정" Style="{StaticResource PageTitleStyle}" Margin="0,0,0,4" />
-            <TextBlock Text="자주 사용하는 창 관리 기능에 단축키를 할당하여 생산성을 높이세요."
+            <TextBlock Text="단축키" Style="{StaticResource PageTitleStyle}" Margin="0,0,0,4" />
+            <TextBlock Text="현재 등록된 글로벌 핫키입니다."
                        TextWrapping="Wrap"
                        Foreground="{StaticResource OnSurfaceVariantBrush}"
                        Margin="0,0,0,16" />

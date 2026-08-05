@@ -443,20 +443,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
             IconGlyph = "📥",
             Keys = ["Ctrl", "Shift", "P"],
             HighlightLastKey = true
-        },
-        new ShortcutItemViewModel
-        {
-            Title = "모든 창 숨기기",
-            Subtitle = "Toggle Visibility",
-            IconGlyph = "👁",
-            Keys = ["대시보드", "토글"]
-        },
-        new ShortcutItemViewModel
-        {
-            Title = "독으로 보내기",
-            Subtitle = "Send to Dock",
-            IconGlyph = "📌",
-            Keys = ["Windows", "탭", "토글"]
         }
     ];
 
