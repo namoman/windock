@@ -1,5 +1,6 @@
 ﻿using System.Windows.Interop;
 using System.Windows.Threading;
+using WindowDock.Core.Models;
 using WindowDock.Core.Native;
 using WindowDock.Core.Services;
 using WindowDock.UI;
@@ -44,6 +45,11 @@ public partial class App : System.Windows.Application
         var ownerHwnd = new WindowInteropHelper(_ownerWindow).EnsureHandle();
         _parker.SetOwnerWindow(ownerHwnd);
 
+        _parker.ParkedWindowsChanged += (_, _) =>
+            _store.SaveMetadata(_parker.GetParkedWindows());
+
+        RecoverParkedWindowsFromStore();
+
         _mainViewModel = new MainViewModel(_parker, _enumerator, _settingsStore)
         {
             AppIcon = AppIconLoader.LoadImageSource()
@@ -60,15 +66,17 @@ public partial class App : System.Windows.Application
         SetupTrayIcon();
         SetupRefreshTimer();
 
-        _parker.ParkedWindowsChanged += (_, _) =>
-            _store.SaveMetadata(_parker.GetParkedWindows());
-
         ApplyWindowOpacity();
         _mainWindow.Show();
+        _mainViewModel.Refresh();
     }
 
     protected override void OnExit(System.Windows.ExitEventArgs e)
     {
+        // Owner 창이 사라지기 전에 숨긴 창을 복원해 고아 창이 남지 않게 한다.
+        _parker.RestoreAll();
+        _store.SaveMetadata(_parker.GetParkedWindows());
+
         if (_hwndSource != null)
         {
             UnregisterGlobalHotkey();
@@ -78,6 +86,47 @@ public partial class App : System.Windows.Application
         _refreshTimer?.Stop();
         _notifyIcon?.Dispose();
         base.OnExit(e);
+    }
+
+    private void RecoverParkedWindowsFromStore()
+    {
+        var snapshots = _store.LoadMetadata();
+        if (snapshots.Count == 0)
+        {
+            return;
+        }
+
+        var hidden = _enumerator.GetHiddenTitledWindows();
+        var usedHandles = new HashSet<IntPtr>();
+
+        foreach (var snapshot in snapshots)
+        {
+            var match = hidden.FirstOrDefault(w =>
+                !usedHandles.Contains(w.Handle) &&
+                string.Equals(w.ProcessName, snapshot.ProcessName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(w.Title, snapshot.Title, StringComparison.Ordinal));
+
+            if (match is null)
+            {
+                continue;
+            }
+
+            usedHandles.Add(match.Handle);
+            _parker.AdoptHidden(new ParkedWindowInfo
+            {
+                Handle = match.Handle,
+                Title = snapshot.Title,
+                ProcessName = snapshot.ProcessName,
+                ProcessId = match.ProcessId,
+                Rect = snapshot.Rect.Width > 0 ? snapshot.Rect : match.Rect,
+                ParkedAt = snapshot.ParkedAt,
+                UsedMinimizeFallback = snapshot.UsedMinimizeFallback,
+                IsParked = true
+            });
+        }
+
+        // 매칭되지 않은 오래된 메타는 현재 목록으로 덮어쓴다.
+        _store.SaveMetadata(_parker.GetParkedWindows());
     }
 
     private void ApplyWindowOpacity()

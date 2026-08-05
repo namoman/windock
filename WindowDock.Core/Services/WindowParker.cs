@@ -159,6 +159,53 @@ public sealed class WindowParker
         }
     }
 
+    public void RestoreAll()
+    {
+        foreach (var parked in GetParkedWindows())
+        {
+            Restore(parked.Handle);
+        }
+    }
+
+    /// <summary>
+    /// 이미 숨겨진 창을 현재 Owner 아래로 다시 붙여 숨김 목록에 올립니다.
+    /// </summary>
+    public bool AdoptHidden(ParkedWindowInfo info)
+    {
+        if (_ownerHwnd == IntPtr.Zero || !Win32Helper.IsWindowAlive(info.Handle))
+        {
+            return false;
+        }
+
+        lock (_sync)
+        {
+            if (_parkedWindows.Any(w => w.Handle == info.Handle && w.IsParked))
+            {
+                return true;
+            }
+        }
+
+        if (info.UsedMinimizeFallback)
+        {
+            info.IsParked = true;
+            AddParkedWindow(info);
+            return true;
+        }
+
+        var originalParent = Win32Helper.GetWindowParent(info.Handle);
+        if (!Win32Helper.SetWindowParent(info.Handle, _ownerHwnd))
+        {
+            return false;
+        }
+
+        _ = Win32Helper.ShowWindow(info.Handle, NativeMethods.SwHide);
+        info.OriginalParent = originalParent == _ownerHwnd ? IntPtr.Zero : originalParent;
+        info.IsParked = true;
+        info.UsedMinimizeFallback = false;
+        AddParkedWindow(info);
+        return true;
+    }
+
     public ParkResult ParkForegroundWindow(WindowEnumerator enumerator)
     {
         var hwnd = enumerator.GetForegroundWindowHandle();

@@ -113,6 +113,58 @@ public sealed class WindowEnumerator
         };
     }
 
+    /// <summary>
+    /// 제목이 있는 숨김(비가시) 최상위 창을 열거합니다. 이전 세션에서 Park 후 앱이 종료된 고아 창 회수용.
+    /// </summary>
+    public IReadOnlyList<WindowInfo> GetHiddenTitledWindows()
+    {
+        var windows = new List<WindowInfo>();
+        var currentProcessId = Process.GetCurrentProcess().Id;
+
+        NativeMethods.EnumWindows(
+            (hwnd, _) =>
+            {
+                if (!Win32Helper.IsWindowAlive(hwnd) || NativeMethods.IsWindowVisible(hwnd))
+                {
+                    return true;
+                }
+
+                var title = Win32Helper.GetWindowTitle(hwnd);
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    return true;
+                }
+
+                var className = Win32Helper.GetClassName(hwnd);
+                if (ExcludedClassNames.Contains(className))
+                {
+                    return true;
+                }
+
+                var processId = Win32Helper.GetWindowProcessId(hwnd);
+                if (processId == currentProcessId)
+                {
+                    return true;
+                }
+
+                windows.Add(new WindowInfo
+                {
+                    Handle = hwnd,
+                    Title = title,
+                    ProcessName = GetProcessName(processId),
+                    ProcessId = processId,
+                    ClassName = className,
+                    Rect = Win32Helper.GetWindowRect(hwnd),
+                    IsVisible = false
+                });
+
+                return true;
+            },
+            IntPtr.Zero);
+
+        return windows;
+    }
+
     public IntPtr GetForegroundWindowHandle() =>
         NativeMethods.GetForegroundWindow();
 
