@@ -17,14 +17,15 @@ public partial class App : System.Windows.Application
 
     private System.Windows.Window? _ownerWindow;
     private HwndSource? _hwndSource;
-    private DockWindow? _dockWindow;
+    private MainWindow? _mainWindow;
     private Forms.NotifyIcon? _notifyIcon;
     private DispatcherTimer? _refreshTimer;
 
     private readonly WindowEnumerator _enumerator = new();
     private readonly WindowParker _parker = new();
     private readonly ParkedWindowStore _store = new();
-    private DockViewModel? _dockViewModel;
+    private readonly AppSettingsStore _settingsStore = new();
+    private MainViewModel? _mainViewModel;
 
     protected override void OnStartup(System.Windows.StartupEventArgs e)
     {
@@ -43,12 +44,14 @@ public partial class App : System.Windows.Application
         var ownerHwnd = new WindowInteropHelper(_ownerWindow).EnsureHandle();
         _parker.SetOwnerWindow(ownerHwnd);
 
-        _dockViewModel = new DockViewModel(_parker, _enumerator);
-        _dockWindow = new DockWindow(_dockViewModel)
+        _mainViewModel = new MainViewModel(_parker, _enumerator, _settingsStore)
+        {
+            AppIcon = AppIconLoader.LoadImageSource()
+        };
+        _mainWindow = new MainWindow(_mainViewModel)
         {
             Owner = _ownerWindow
         };
-        _dockWindow.RequestPicker += (_, _) => ShowWindowPicker();
 
         _hwndSource = HwndSource.FromHwnd(ownerHwnd);
         _hwndSource.AddHook(WndProc);
@@ -60,7 +63,8 @@ public partial class App : System.Windows.Application
         _parker.ParkedWindowsChanged += (_, _) =>
             _store.SaveMetadata(_parker.GetParkedWindows());
 
-        _dockWindow.Show();
+        ApplyWindowOpacity();
+        _mainWindow.Show();
     }
 
     protected override void OnExit(System.Windows.ExitEventArgs e)
@@ -76,24 +80,40 @@ public partial class App : System.Windows.Application
         base.OnExit(e);
     }
 
+    private void ApplyWindowOpacity()
+    {
+        if (_mainWindow is null || _mainViewModel is null)
+        {
+            return;
+        }
+
+        _mainWindow.Opacity = Math.Clamp(_mainViewModel.DockOpacity / 100.0, 0.1, 1.0);
+        _mainViewModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(MainViewModel.DockOpacity) && _mainWindow is not null)
+            {
+                _mainWindow.Opacity = Math.Clamp(_mainViewModel.DockOpacity / 100.0, 0.1, 1.0);
+            }
+        };
+    }
+
     private void SetupTrayIcon()
     {
         _notifyIcon = new Forms.NotifyIcon
         {
             Text = "Windock",
             Visible = true,
-            Icon = System.Drawing.SystemIcons.Application
+            Icon = AppIconLoader.LoadTrayIcon() ?? System.Drawing.SystemIcons.Application
         };
 
         var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add("독 표시/숨김", null, (_, _) => ToggleDock());
+        menu.Items.Add("Windock 표시/숨김", null, (_, _) => ToggleMainWindow());
         menu.Items.Add("현재 창 보관", null, (_, _) => ParkForeground());
-        menu.Items.Add("창 선택해서 보관...", null, (_, _) => ShowWindowPicker());
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("종료", null, (_, _) => Shutdown());
 
         _notifyIcon.ContextMenuStrip = menu;
-        _notifyIcon.DoubleClick += (_, _) => ToggleDock();
+        _notifyIcon.DoubleClick += (_, _) => ToggleMainWindow();
     }
 
     private void SetupRefreshTimer()
@@ -102,25 +122,25 @@ public partial class App : System.Windows.Application
         {
             Interval = TimeSpan.FromSeconds(2)
         };
-        _refreshTimer.Tick += (_, _) => _dockViewModel?.Refresh();
+        _refreshTimer.Tick += (_, _) => _mainViewModel?.Refresh();
         _refreshTimer.Start();
     }
 
-    private void ToggleDock()
+    private void ToggleMainWindow()
     {
-        if (_dockWindow is null)
+        if (_mainWindow is null)
         {
             return;
         }
 
-        if (_dockWindow.IsVisible)
+        if (_mainWindow.IsVisible)
         {
-            _dockWindow.Hide();
+            _mainWindow.Hide();
         }
         else
         {
-            _dockWindow.Show();
-            _dockWindow.Activate();
+            _mainWindow.Show();
+            _mainWindow.Activate();
         }
     }
 
@@ -136,20 +156,7 @@ public partial class App : System.Windows.Application
                 System.Windows.MessageBoxImage.Information);
         }
 
-        _dockViewModel?.Refresh();
-    }
-
-    private void ShowWindowPicker()
-    {
-        var picker = new WindowPickerWindow(_enumerator, _parker)
-        {
-            Owner = _dockWindow
-        };
-
-        if (picker.ShowDialog() == true)
-        {
-            _dockViewModel?.Refresh();
-        }
+        _mainViewModel?.Refresh();
     }
 
     private static void RegisterGlobalHotkey(IntPtr hwnd)

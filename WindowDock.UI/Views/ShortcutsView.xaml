@@ -1,0 +1,57 @@
+<UserControl x:Class="WindowDock.UI.Views.ShortcutsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <TextBlock Text="단축키 설정" Style="{StaticResource PageTitleStyle}" Margin="0,0,0,4" />
+            <TextBlock Text="자주 사용하는 창 관리 기능에 단축키를 할당하여 생산성을 높이세요."
+                       TextWrapping="Wrap"
+                       Foreground="{StaticResource OnSurfaceVariantBrush}"
+                       Margin="0,0,0,16" />
+
+            <TextBlock Text="창 제어" Style="{StaticResource SectionLabelStyle}" Foreground="{StaticResource PrimaryBrush}" Margin="4,0,0,8" />
+
+            <Border Style="{StaticResource GlassCardStyle}" Padding="0">
+                <ItemsControl ItemsSource="{Binding Shortcuts}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="16,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ItemsControl ItemsSource="{Binding Keys}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Border Background="{StaticResource BackgroundBrush}"
+                                                            BorderBrush="#4D404752"
+                                                            BorderThickness="1"
+                                                            CornerRadius="4"
+                                                            Padding="8,4"
+                                                            Margin="2,0">
+                                                        <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" />
+                                                    </Border>
+                                                    <TextBlock Text="+" Foreground="{StaticResource OnSurfaceVariantBrush}" Margin="4,0" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding IconGlyph}" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center" />
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource OnSurfaceBrush}" />
+                                        <TextBlock Text="{Binding Subtitle}" FontSize="12" Foreground="{StaticResource OnSurfaceVariantBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,74 @@
+<UserControl x:Class="WindowDock.UI.Views.WindowsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <DockPanel Margin="0,0,0,8">
+                <TextBlock Text="활성 창" Style="{StaticResource PageTitleStyle}" FontSize="16" />
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding ActiveCount, StringFormat={}{0}개 항목}"
+                           Foreground="{StaticResource OnSurfaceVariantBrush}"
+                           VerticalAlignment="Center" />
+            </DockPanel>
+
+            <ItemsControl ItemsSource="{Binding ActiveWindows}" Margin="0,0,0,20">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,0,8" Padding="12">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right"
+                                        Command="{Binding DataContext.ToggleActiveWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource ToggleSwitchStyle}"
+                                        ToolTip="작업표시줄에서 숨기기" />
+                                <Image Source="{Binding Icon}" Width="32" Height="32" Margin="0,0,12,0" DockPanel.Dock="Left" />
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ProcessName}" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Title}" FontSize="12" Foreground="{StaticResource OnSurfaceVariantBrush}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <DockPanel Margin="0,0,0,8">
+                <TextBlock Text="숨겨진 창" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource OnSurfaceVariantBrush}" />
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding HiddenCount, StringFormat={}{0}개 항목}"
+                           Foreground="{StaticResource OutlineVariantBrush}"
+                           VerticalAlignment="Center" />
+            </DockPanel>
+
+            <ItemsControl ItemsSource="{Binding ParkedWindows}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="4" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.RestoreParkedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Margin="4"
+                                Padding="8"
+                                Background="{StaticResource SurfaceContainerHighBrush}"
+                                BorderBrush="#33404752"
+                                BorderThickness="1"
+                                Cursor="Hand"
+                                ToolTip="클릭하여 복원">
+                            <StackPanel>
+                                <Image Source="{Binding Icon}" Width="24" Height="24" Margin="0,0,0,6" />
+                                <TextBlock Text="{Binding ProcessName}"
+                                           FontSize="10"
+                                           Foreground="{StaticResource OnSurfaceVariantBrush}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
