@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowDock.Core", "WindowDock.Core\WindowDock.Core.csproj", "{35B1C079-FDB4-4730-A169-ED952744708F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowDock.UI", "WindowDock.UI\WindowDock.UI.csproj", "{88A9E663-BF09-4682-BCDA-7CECD04DA964}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowDock.App", "WindowDock.App\WindowDock.App.csproj", "{C9714317-868A-4643-8ECD-A5098E22434C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35B1C079-FDB4-4730-A169-ED952744708F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35B1C079-FDB4-4730-A169-ED952744708F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35B1C079-FDB4-4730-A169-ED952744708F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35B1C079-FDB4-4730-A169-ED952744708F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88A9E663-BF09-4682-BCDA-7CECD04DA964}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88A9E663-BF09-4682-BCDA-7CECD04DA964}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88A9E663-BF09-4682-BCDA-7CECD04DA964}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88A9E663-BF09-4682-BCDA-7CECD04DA964}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9714317-868A-4643-8ECD-A5098E22434C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9714317-868A-4643-8ECD-A5098E22434C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9714317-868A-4643-8ECD-A5098E22434C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9714317-868A-4643-8ECD-A5098E22434C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
